@@ -1,26 +1,15 @@
 import './App.css'
-import NavSection from "./components/NavSection.jsx";
-import Footer from "./components/Footer.jsx";
-import HeroSection from "./components/HeroSection.jsx";
-import TaskSection from "./components/TaskSection.jsx";
-import TaskForm from "./components/TaskForm.jsx";
-import Modal from "./components/Modal.jsx";
-import {useModal} from "./contexts/ModalContext.jsx";
+import './styles/modal.css'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Page from "./components/Page.jsx";
 
 export default function App() {
-    const { isModalOpen, closeModal } = useModal();
 
     return (
         <>
-            <NavSection></NavSection>
-            <HeroSection></HeroSection>
-            <TaskSection></TaskSection>
-            <Footer></Footer>
-
-            <Modal isOpen={isModalOpen} closeModal={closeModal}>
-                <TaskForm></TaskForm>
-            </Modal>
-
+            <Page/>
+            <ToastContainer />
         </>
     )
 }
