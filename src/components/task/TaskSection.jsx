@@ -10,10 +10,28 @@ export default function TaskSection() {
     const [tasks, setTasks] = useState([]);
     const [editingTask, setEditingTask] = useState(null);
 
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+
+    /*
+     Action Functions List
+        handleAddTask
+        handleEditTask
+
+
+
+     */
     useEffect(() => {
         setTasks(getTaskList());
     }, []);
 
+    /*
+       Event Base Functions List
+           handleModalOpen
+           handleModalClose
+           handleEditModal
+           handleBulkDeleteClick
+   */
 
     function handleModalOpen() {
         console.log("handleModalOpen")
@@ -25,6 +43,25 @@ export default function TaskSection() {
         setIsModalOpen(false);
     }
 
+    function handleEditModal(item) {
+        setIsModalOpen(true);
+        setEditingTask(item);
+    }
+    function handleBulkDeleteClick(){
+        if (tasks.length === 0) {
+            toast.error('There are no items to delete.');
+        } else {
+            setIsConfirmationModalOpen(true);
+        }
+    }
+    /*
+        Action Functions List
+            handleAddTask
+            handleEditTask
+            handleDeleteTask
+            confirmDeleteAll
+    */
+
     function handleAddTask(item) {
         addTask(item);
         setTasks(getTaskList());
@@ -32,7 +69,8 @@ export default function TaskSection() {
             position: 'bottom-right'
         });
     }
-    function handleEditTask(item){
+
+    function handleEditTask(item) {
         editTask(item);
         setTasks(getTaskList());
         toast.success(`${item.title} Updated Successfully`, {
@@ -40,17 +78,17 @@ export default function TaskSection() {
         });
     }
 
-    function handleEditModal(item) {
-        console.log(item)
-        setIsModalOpen(true);
-        setEditingTask(item);
-    }
-
     function handleDeleteTask(item) {
-        setTasks(deleteTask(item));
+        setTasks(tasks.filter(task => task.id !== item.id));
         toast.success(`${item.title} Deleted Successfully`, {
             position: 'bottom-right'
         });
+    }
+
+    function confirmDeleteAll(){
+        setTasks([]);
+        setIsConfirmationModalOpen(false);
+        toast.success('All items deleted successfully.');
     }
 
 
@@ -90,26 +128,25 @@ export default function TaskSection() {
                                     onClick={handleModalOpen}
                             >Add Task
                             </button>
-                            <button className="rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold">Delete All
+
+                            <button
+                                onClick={handleBulkDeleteClick}
+                                className="rounded-md bg-red-500 px-3.5 py-2.5 text-sm font-semibold">Delete All
                             </button>
                         </div>
                     </div>
                     {
                         isModalOpen &&
-                        <TaskFormModal isOpen={isModalOpen} closeModal={handleModalClose} addTask={handleAddTask} editTask={handleEditTask} editingTaskData={editingTask} />
-
-                        // <TaskFormModal
-                        //     isOpen={isModalOpen}
-                        //     closeModal={handleModalClose}
-                        //     addTask={handleAddTask}
-                        //     editingTaskData={editingTask}/>
+                        <TaskFormModal isOpen={isModalOpen} closeModal={handleModalClose} addTask={handleAddTask}
+                                       editTask={handleEditTask} editingTaskData={editingTask}/>
                     }
 
                     <div className="overflow-auto">
                         <table className="table-fixed overflow-auto xl:w-full">
                             <thead>
                             <tr>
-                                <th className="p-4 pb-8 text-sm font-semibold capitalize w-[48px]"></th>
+                                <th className="p-4 pb-8 text-sm font-semibold capitalize w-[48px]">
+                                </th>
                                 <th className="p-4 pb-8 text-sm font-semibold capitalize w-[300px]"> Title</th>
                                 <th className="p-4 pb-8 text-sm font-semibold capitalize w-full"> Description</th>
                                 <th className="p-4 pb-8 text-sm font-semibold capitalize md:w-[350px]"> Tags</th>
@@ -118,21 +155,40 @@ export default function TaskSection() {
                             </tr>
                             </thead>
                             <tbody>
-                            {
-                                tasks.map((item) => {
-                                    return (
-                                        <TaskTableItem
-                                            key={item.id}
-                                            item={item}
-                                            deleteTask={handleDeleteTask}
-                                            openEditModal={handleEditModal}/>
-                                    );
-                                })
-                            }
+                            {tasks.map(item => (
+                                <TaskTableItem
+                                    key={item.id}
+                                    item={item}
+                                    deleteTask={handleDeleteTask}
+                                    openEditModal={handleEditModal}
+                                />
+                            ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
+                {/* Confirmation Modal */}
+                <Modal className="modal-overlay" isOpen={isConfirmationModalOpen}
+                       closeModal={() => setIsConfirmationModalOpen(false)}>
+                    <div
+                        className="mx-auto my-10 w-full max-w-[400px] rounded-xl border border-[#FEFBFB]/[36%] bg-[#191D26] p-9 max-md:px-4 lg:my-20 lg:p-11">
+                        <div className="mt-6 text-center">
+                            <p className="text-lg text-white mb-4" style={{marginBottom: '1rem'}}>Are you sure you want
+                                to delete the selected items?</p>
+                            <p className="text-sm text-gray-400 mb-2" style={{marginBottom: '0.5rem'}}>This action
+                                cannot be undone.</p>
+                        </div>
+                        <div className="mt-8 flex justify-center">
+                            <button className="bg-red-500 text-white px-4 py-2 rounded-md mr-4"
+                                    onClick={confirmDeleteAll}>Delete
+                            </button>
+                            <button className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                                    onClick={() => setIsConfirmationModalOpen(false)}>Cancel
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+
             </div>
         </section>
     );
